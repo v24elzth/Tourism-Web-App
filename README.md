@@ -18,8 +18,4 @@ This is a comprehensive web project covering both **Frontend** (UI/UX) and **Bac
 
 ## 🛠 Tech Stack
 *   **Backend:** Python (Flask/General Python)
-*   **Frontend:** HTML5, CSS3, JavaScript
-
-## ✍️ Author
-**Computing & Data Science Student**  
-*Calvin Institute of Technology*
+*   **Frontend:** HTML, CSS, JavaScript
