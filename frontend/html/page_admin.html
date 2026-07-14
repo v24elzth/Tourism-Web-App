@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin page</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/admin.css') }}"
+    />
+  </head>
+
+  <body>
+    <header class="navbar">
+      <nav>
+        <a href="#profile">Profile</a>
+        <a href="#people-order">Orders</a>
+        <a href="#stocks">Stocks</a>
+        <a href="#tour-assets">Tour Assets</a>
+        <a href="#access">Access</a>
+      </nav>
+      <div class="logo">FOURWINDSTRAVEL.CO</div>
+    </header>
+
+    <main class="container">
+      <!-- PROFILE SECTION -->
+      <section id="profile" class="card profile-section">
+        <div class="profile-header">
+          <h1>Hello <span id="hello-name">{{ admin.nama | title }}</span>!</h1>
+
+          <div class="button-area">
+            <button id="btn-edit" class="btn-primary" onclick="enableEdit()">
+              Change Profile
+            </button>
+
+            <div id="edit-actions" style="display: none">
+              <button class="btn-success" onclick="saveProfile()">
+                Save Changes
+              </button>
+              <button class="btn-secondary" onclick="disableEdit()">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-details">
+          <div class="detail-row">
+            <span>Name</span>
+            <strong id="display-nama">{{ admin.nama }}</strong>
+            <input
+              type="text"
+              id="input-nama"
+              class="form-control"
+              value="{{ admin.nama }}"
+              style="display: none"
+            />
+          </div>
+          <hr />
+
+          <div class="detail-row">
+            <span>Email Account</span>
+            <strong id="display-email">{{ admin.email }}</strong>
+            <input
+              type="email"
+              id="input-email"
+              class="form-control"
+              value="{{ admin.email }}"
+              style="display: none"
+            />
+          </div>
+          <hr />
+
+          <div class="detail-row">
+            <span>Created Profile Date</span>
+            <strong>{{ admin.created_at if admin.created_at else '-' }}</strong>
+          </div>
+          <hr />
+          <div class="detail-row">
+            <span>Updated Profile Date</span>
+            <strong>{{ admin.updated_at if admin.updated_at else '-' }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS SECTION -->
+      <section id="people-order" class="section-group">
+        <h2 class="title-large">People's Orders</h2>
+        <div class="card table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Package</th>
+                <th>Qty</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body">
+              {% if orders %} {% for o in orders %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td><strong>{{ o.nama_user }}</strong></td>
+                <td>{{ o.nama_wisata }}</td>
+                <td>{{ o.qty }} pax</td>
+                <td>{{ o.start_date }}</td>
+                <td>{{ o.end_date }}</td>
+                <td>
+                  Rp {{ "{:,.0f}".format(o.total_harga).replace(',', '.') }}
+                </td>
+              </tr>
+              {% endfor %} {% else %}
+              <tr>
+                <td colspan="7" class="table-empty-msg">
+                  Belum ada pesanan masuk.
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- STOCKS SECTION -->
+      <section class="section-group">
+        <h2 id="stocks" class="title-large">List of Location - Package</h2>
+        <div class="card table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th class="col-id">Id</th>
+                <th>Location</th>
+                <th>Package</th>
+                <th class="text-right">Price</th>
+              </tr>
+            </thead>
+            <tbody id="stocks-body">
+              {% for p in all_packages %}
+              <tr>
+                <td>{{ p.id }}</td>
+                <td><strong>{{ p.nama_lokasi }}</strong></td>
+                <td>{{ p.nama_wisata }}</td>
+                <td class="text-right">
+                  <strong
+                    >Rp {{ "{:,.0f}".format(p.harga).replace(',', '.')
+                    }}</strong
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- LOCATION ASSETS SECTION -->
+      <section id="tour-assets" class="section-group">
+        <div class="location-management-grid">
+          <div class="location-col">
+            <h2 class="title-large">Add Location</h2>
+            <form
+              action="{{ url_for('wisata.add_location') }}"
+              method="POST"
+              enctype="multipart/form-data"
+            >
+              <label class="location-card image-placeholder">
+                <span class="center-text" id="label-text">Insert Photo</span>
+                <img id="preview-img" src="" style="display: none" />
+                <input
+                  type="file"
+                  name="location_photo"
+                  accept="image/*"
+                  required
+                  hidden
+                  onchange="showPackagePreview(this)"
+                />
+
+                <div class="input-container-bottom">
+                  <input
+                    type="text"
+                    name="new_location_name"
+                    placeholder="Insert Location Name"
+                    class="input-location-name"
+                    required
+                  />
+                </div>
+              </label>
+              <div class="btn-container-center">
+                <button type="submit" class="btn-small">Add New</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="location-col">
+            <h2 class="title-large">Edit Location</h2>
+            <form
+              action="{{ url_for('wisata.edit_location') }}"
+              method="POST"
+              enctype="multipart/form-data"
+            >
+              <label
+                for="edit_file_input"
+                class="location-card image-placeholder label-edit-loc"
+              >
+                <img
+                  id="edit-preview-img"
+                  src=""
+                  class="preview-img-edit"
+                  style="display: none"
+                />
+                <span
+                  class="center-text text-z-index"
+                  id="edit-label-text"
+                ></span>
+                <input
+                  type="file"
+                  name="location_photo_edit"
+                  id="edit_file_input"
+                  hidden
+                  onchange="showEditPackagePreview(this)"
+                />
+
+                <div class="input-container-bottom input-z-index">
+                  <input
+                    type="text"
+                    id="edit_name_input"
+                    name="edit_location_name"
+                    placeholder="Insert Location Name"
+                    class="input-location-name"
+                    required
+                  />
+                  <input type="hidden" name="location_id" id="edit_id_input" />
+                </div>
+              </label>
+
+              <div class="btn-container-split">
+                <button
+                  type="button"
+                  class="btn-small"
+                  onclick="showEditSearch()"
+                >
+                  Search
+                </button>
+                <button
+                  type="submit"
+                  id="btn-delete-location"
+                  class="btn-small btn-danger"
+                  onclick="
+                    return confirm('All the packages in it will be deleted');
+                  "
+                  formaction=""
+                >
+                  Delete
+                </button>
+                <button type="submit" class="btn-small">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADD PACKAGE SECTION -->
+      <section class="section-group">
+        <div class="package-block">
+          <h2 class="title-large">Add New Package</h2>
+          <form
+            action="{{ url_for('wisata.add_package') }}"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <div class="card package-card-full">
+              <label class="image-placeholder-large label-pointer">
+                <span id="package-label-text">Insert Photo</span>
+                <img
+                  id="package-preview-img"
+                  src=""
+                  class="package-img-preview"
+                  style="display: none"
+                />
+                <input
+                  type="file"
+                  name="package_photo"
+                  hidden
+                  onchange="showPackagePreview(this)"
+                />
+              </label>
+               <!-- name="package_photo" refer to wisata.py pasti ada files.get () -->
+
+              <div class="package-content-grid">
+                <div class="col-info">
+                  <p id="selected_loc_text" class="location-label-text"></p>
+                  <input
+                    type="hidden"
+                    name="id_lokasi"
+                    id="add_package_location_id"
+                  />
+                  <input
+                    type="text"
+                    name="nama_wisata"
+                    placeholder="Package Name"
+                    class="input-clear"
+                    required
+                  />
+
+                  <div class="price-row">
+                    <span>Rp</span>
+                    <input
+                      type="text"
+                      id="input-harga"
+                      name="harga_display"
+                      placeholder="0"
+                      class="input-clear bold"
+                      oninput="formatRupiah(this)"
+                      required
+                    />
+                    <span>/ per pax</span>
+                    <input type="hidden" name="harga" id="harga_asli" />
+                  </div>
+
+                  <div class="col-action action-gap">
+                    <button
+                      type="button"
+                      class="btn-small"
+                      onclick="showAddLocationModal()"
+                    >
+                      Search Location
+                    </button>
+                    <button type="submit" class="btn-save">Save</button>
+                  </div>
+                </div>
+
+                <div class="col-itinerary">
+                  <div class="itinerary-sub-grid">
+                    <div class="day-box" id="day-box-1">
+                      <div class="day-header">
+                        <span>Day 1</span>
+                        <button
+                          type="button"
+                          onclick="addActivity(1)"
+                          class="btn-mini"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <ul id="list-day-1">
+                        <li>
+                          <input
+                            type="text"
+                            name="day1[]"
+                            placeholder="Activity"
+                            class="input-clear"
+                          />
+                          <button
+                            type="button"
+                            onclick="this.parentElement.remove()"
+                            class="btn-remove"
+                          >
+                            ×
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="day-box" id="day-box-2">
+                      <div class="day-header">
+                        <span>Day 2</span>
+                        <button
+                          type="button"
+                          onclick="addActivity(2)"
+                          class="btn-mini"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <ul id="list-day-2">
+                        <li>
+                          <input
+                            type="text"
+                            name="day2[]"
+                            placeholder="Activity 1"
+                            class="input-clear"
+                          />
+                          <button
+                            type="button"
+                            onclick="this.parentElement.remove()"
+                            class="btn-remove"
+                          >
+                            ×
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="day-box" id="day-box-3" style="display: none">
+                      <div class="day-header">
+                        <span>Day 3</span>
+                        <button
+                          type="button"
+                          onclick="addActivity(3)"
+                          class="btn-mini"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <ul id="list-day-3">
+                        <li>
+                          <input
+                            type="text"
+                            name="day3[]"
+                            placeholder="Activity 1"
+                            class="input-clear"
+                          />
+                          <button
+                            type="button"
+                            onclick="this.parentElement.remove()"
+                            class="btn-remove"
+                          >
+                            ×
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="day-box" id="day-box-4" style="display: none">
+                      <div class="day-header">
+                        <span>Day 4</span>
+                        <button
+                          type="button"
+                          onclick="addActivity(4)"
+                          class="btn-mini"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <ul id="list-day-4">
+                        <li>
+                          <input
+                            type="text"
+                            name="day4[]"
+                            placeholder="Activity 1"
+                            class="input-clear"
+                          />
+                          <button
+                            type="button"
+                            onclick="this.parentElement.remove()"
+                            class="btn-remove"
+                          >
+                            ×
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="manage-day-container">
+                    <button
+                      type="button"
+                      class="btn-small btn-day-control"
+                      onclick="manageDays('add')"
+                    >
+                      + Day
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-small btn-day-control"
+                      onclick="manageDays('remove')"
+                    >
+                      - Day
+                    </button>
+                    <input
+                      type="hidden"
+                      name="durasi"
+                      id="input_durasi"
+                      value="2"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- EDIT PACKAGE SECTION -->
+        <div class="package-block">
+          <div class="header-with-search">
+            <h2 class="title-large">Edit Package</h2>
+            <div class="col-action action-gap mt-15">
+              <button
+                type="button"
+                class="btn-small"
+                onclick="showPackageSearch()"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                class="btn-small btn-danger white-text"
+                onclick="deletePackageManual()"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <form
+            action="{{ url_for('wisata.edit_package') }}"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <input type="hidden" name="package_id" id="edit_package_id_input" />
+            <input
+              type="hidden"
+              name="id_lokasi"
+              id="edit_package_location_id"
+            />
+
+            <div class="card package-card-full">
+              <label class="image-placeholder-large label-edit-pkg">
+                <span id="edit-package-label-text" class="text-z-index-1"
+                  >Insert Photo</span
+                >
+                <img
+                  id="edit-package-preview-img"
+                  src=""
+                  class="package-img-preview z-index-2"
+                  style="display: none"
+                />
+                <input
+                  type="file"
+                  name="package_photo_edit"
+                  class="file-input-overlay"
+                  onchange="showEditPackagePreview(this)"
+                />
+              </label>
+
+              <div class="package-content-grid">
+                <div class="col-info">
+                  <p id="edit_selected_loc_text" class="location-label-text">
+                    📍 Location: -
+                  </p>
+                  <input
+                    type="text"
+                    id="edit_nama_wisata"
+                    name="nama_wisata"
+                    placeholder="Package Name"
+                    class="input-clear"
+                    required
+                  />
+
+                  <div class="price-row">
+                    <span>Rp</span>
+                    <input
+                      type="text"
+                      id="edit-input-harga"
+                      placeholder="0"
+                      class="input-clear bold"
+                      oninput="formatRupiah(this)"
+                      required
+                    />
+                    <span>/ per pax</span>
+                    <input type="hidden" name="harga" id="edit_harga_asli" />
+                  </div>
+
+                  <div class="col-action action-gap mt-10">
+                    <button
+                      type="button"
+                      class="btn-small"
+                      onclick="showEditPackageLocationModal()"
+                    >
+                      Change Location
+                    </button>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                  </div>
+                </div>
+
+                <div class="col-itinerary">
+                  <div class="itinerary-sub-grid" id="edit_itinerary_container">
+                    <p class="itinerary-placeholder">
+                      Search & Confirm a package to edit itinerary
+                    </p>
+                  </div>
+
+                  <div class="manage-day-container">
+                    <button
+                      type="button"
+                      class="btn-small btn-day-control btn-brown"
+                      onclick="manageDaysEdit('add')"
+                    >
+                      + Day
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-small btn-day-control btn-brown"
+                      onclick="manageDaysEdit('remove')"
+                    >
+                      - Day
+                    </button>
+                    <input
+                      type="hidden"
+                      name="durasi"
+                      id="edit_input_durasi"
+                      value="2"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ACCESS SECTION -->
+      <section id="access" class="section-group">
+        <h2 class="title-large">Add New User</h2>
+        <form id="form-register-admin" action="{{ url_for('auth.signup_process') }}" method="POST">
+          <input type="hidden" name="source" value="admin_dashboard" />
+          <div class="card user-card-modern">
+            <div class="user-grid">
+              <div class="input-box">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  name="nama"
+                  placeholder="your full name"
+                  required
+                />
+              </div>
+              <div class="input-box">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="youremail@example.com"
+                  required
+                />
+              </div>
+              <div class="input-box">
+                <label>Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              <div class="input-box">
+                <label>Role</label>
+                <select name="role" required>
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+            <div class="user-footer">
+              <button type="submit" class="btn-register">Register</button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <!-- MODALS -->
+    <!-- Modal Add Package Location -->
+    <div id="addPackageLocationModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Select Location</h2>
+        <div class="step-box">
+          <label>Choose location</label>
+          <select
+            id="locationSelectAdd"
+            class="custom-select"
+          >
+            <option value="" disabled selected>-- Choose Location --</option>
+            {% for loc in locations %}
+            <option value="{{ loc.id }}" data-nama="{{ loc.nama_lokasi }}">
+              {{ loc.nama_lokasi }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="modal-actions mt-20">
+          <button
+            type="button"
+            class="btn-cancel"
+            onclick="closeAddLocationModal()"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn-save"
+            onclick="confirmLocationForAdd()"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Edit Package Location -->
+    <div id="editPackageLocationModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Change Package Location</h2>
+        <div class="step-box">
+          <label>Choose location</label>
+          <select id="locationSelectEditPackage" class="custom-select">
+            <option value="" disabled selected>-- Choose Location --</option>
+            {% for loc in locations %}
+            <option value="{{ loc.id }}" data-nama="{{ loc.nama_lokasi }}">
+              {{ loc.nama_lokasi }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="modal-actions mt-20">
+          <button type="button" class="btn-cancel" onclick="closeEditPackageLocationModal()">Cancel</button>
+          <button type="button" class="btn-save" onclick="confirmEditPackageLocation()">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Edit Location -->
+    <div id="editLocationModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Select Location to Edit</h2>
+        <div class="step-box">
+          <label>Choose existing location</label>
+          <select id="locationSelect" class="custom-select">
+            <option value="" disabled selected>-- Choose Location --</option>
+            {% for loc in locations %}
+            <option
+              value="{{ loc.id }}"
+              data-nama="{{ loc.nama_lokasi }}"
+              data-gambar="{{ loc.gambar }}"
+            >
+              {{ loc.nama_lokasi }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeEditSearch()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn-save"
+            onclick="selectLocationForEdit()"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Edit Package -->
+    <div id="editPackageModal" class="modal-search">
+      <div class="modal-content-large">
+        <h2 class="title-large">Select Package</h2>
+        <div class="step-box mb-20">
+          <label>Choose Package to Load</label>
+          <select id="packageSelect" class="custom-select">
+            <option value="" disabled selected>-- Choose Package --</option>
+            {% for p in all_packages %}
+            <option
+              value="{{ p.id }}"
+              data-nama="{{ p.nama_wisata }}"
+              data-harga="{{ p.harga }}"
+              data-durasi="{{ p.durasi }}"
+              data-gambar="{{ p.gambar }}"
+              data-id-lokasi="{{ p.id_lokasi }}"
+              data-nama-lokasi="{{ p.nama_lokasi }}"
+              data-itinerary="{{ p.deskripsi if p.deskripsi else '{}' }}"
+            >
+              {{ p.nama_wisata }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="modal-actions mt-20">
+          <button
+            type="button"
+            class="btn-cancel"
+            onclick="closePackageSearch()"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn-save"
+            onclick="confirmPackageSelection()"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='javascript/adminpage.js') }}"></script>
+  </body>
+</html>

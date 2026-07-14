@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Four Winds Travel - Explore</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/user.css') }}"
+    />
+  </head>
+
+  <body>
+    <header class="navbar">
+      <nav class="nav-links">
+        <a href="#location">Location</a>
+        <a href="#package">Package</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="header-right">
+        <div class="logo">FOURWINDSTRAVEL.CO</div>
+
+        <div class="cart-container">
+          <div class="cart-icon" id="cartIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="icon-svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+              />
+            </svg>
+            <span class="cart-badge">{{ cart_count }}</span>
+            <!-- Python → Jinja → HTML → Browser (one-way)-->
+          </div>
+
+          <div class="cart-dropdown" id="cartDropdown">
+            <a href="/order" class="btn-view-cart">View Cart</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <h1 id="location" class="title">Pick a Location</h1>
+
+      <div class="location-grid">
+        {% for loc in locations %}
+        <a
+          href="#section-{{ loc.nama_lokasi | replace(' ', '-') }}"
+          class="card-link"
+        >
+        <!-- link anchor nya jadi lokasi diklik langsung bisa ke paket nya
+         kalo ada spasi ubah jadi (-) 
+         karena ID/URL gaboleh pake spasi itu dianggap pemisah -->
+          <div class="card">
+            <img
+              src="{{ url_for('static', filename='public/' + loc.gambar) }}"
+              class="card-img"
+            />
+            <div class="card-overlay">
+              <p class="card-text">{{ loc.nama_lokasi }}</p>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      <section id="package" class="packages-section">
+        <h1 class="title">Explore Our Packages</h1>
+
+        <!-- namespace = wadah khusus di Jinja supaya variabel bisa diupdate di 
+        dalam loop. Tanpanya, variabel selalu reset ke nilai awal setiap loop 
+        HARUS pake ns karena jinja ga allowed variabel biasa diubah -->
+
+        {% set ns = namespace(last_location = '') %} {% for w in packages %} {%
+        if w.nama_lokasi != ns.last_location %}
+        <h2
+          id="section-{{ w.nama_lokasi | replace(' ', '-') }}"
+          class="category-subtitle"
+        >
+          {{ w.nama_lokasi }}
+        </h2>
+        {% set ns.last_location = w.nama_lokasi %} {% endif %}
+
+        <div class="package-block" id="package-{{ w.id }}">
+          <div class="package-card">
+            <div class="package-banner">
+              <img
+                src="{{ url_for('static', filename='public/' + w.gambar) }}"
+                alt="{{ w.nama_wisata }}"
+                class="package-img"
+              />
+            </div>
+
+            <div class="package-content">
+              <div class="content-left">
+                <div class="package-info">
+                  <h3>{{ w.nama_wisata }}</h3>
+                  <p class="price-pax">
+                    <strong
+                      >Rp {{ "{:,.0f}".format(w.harga).replace(',', '.')
+                      }}</strong
+                    >
+                    / per pax
+                  </p>
+                </div>
+
+                <div class="package-form">
+                  <div class="input-group">
+                    <label>Pilih tanggal keberangkatan</label>
+                    <input type="date" class="input-date" />
+                  </div>
+                  <div class="input-group">
+                    <label>Jumlah Peserta</label>
+                    <input type="number" class="input-qty" min="1" value="1" />
+                  </div>
+                </div>
+                <button
+                  class="btn-add"
+                  data-id="{{ w.id }}"
+                  data-name="{{ w.nama_wisata }}"
+                >
+                  Add to cart
+                </button>
+              </div>
+
+              <div class="package-description">
+                <div class="col-itinerary">
+                  <div class="itinerary-sub-grid">
+                    {% set itinerary = w.deskripsi|from_json if w.deskripsi is
+                    string else w.deskripsi %} {% for day, activities in
+                    itinerary.items() %}
+
+                    <!-- kalau w.deskripsi masih string → ubah ke dict pakai from_json
+                    kalau sudah dict → pakai langsung
+                    LALU loop tiap hari nya  -->
+
+
+                    <div class="day-box">
+                      <span class="day-label">{{ day }}</span>
+                      <ul class="activity-list">
+                        {% for act in activities %}
+
+                        <!-- ini buat kotak perhari nya
+                        jadi ada label day 1, day 2 gitu
+                        terus nge-loop biar bisa munculin activity -->
+
+                        <li>{{ act }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </section>
+    </main>
+
+    <footer id="contact" class="footer-section">
+      <div class="footer-layout">
+        <div class="footer-column-brand">
+          <h3 class="footer-logo">FOURWINDSTRAVEL.CO</h3>
+          <div class="social-bar">
+            <a href="#"
+              ><img
+                src="/media/homepage/footer/twitter.png"
+                alt="Twitter"
+                class="social-icon"
+            /></a>
+            <a href="#"
+              ><img
+                src="/media/homepage/footer/instagram.png"
+                alt="Instagram"
+                class="social-icon"
+            /></a>
+            <a href="#"
+              ><img
+                src="/media/homepage/footer/facebook.png"
+                alt="Facebook"
+                class="social-icon"
+            /></a>
+            <a href="#"
+              ><img
+                src="/media/homepage/footer/whatsapp.png"
+                alt="WhatsApp"
+                class="social-icon"
+            /></a>
+          </div>
+        </div>
+
+        <div class="footer-column-info">
+          <p class="column-title">INFORMATION</p>
+          <ul class="footer-list">
+            <li><a href="#">About us</a></li>
+            <li><a href="#">More search</a></li>
+            <li><a href="#">Testimonial</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column-contact">
+          <p class="column-title">CONTACT</p>
+          <ul class="footer-list">
+            <li>fourwinds@gmail.com</li>
+            <li>+62 234 234 234</li>
+            <li class="user-icon-row">
+              <a href="/login-admin" class="user-link">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="10" cy="10" r="10" fill="#a38171" />
+                  <path
+                    d="M10 5a3 3 0 100 6 3 3 0 000-6zM4 16c0-3 3-4 6-4s6 1 6 4"
+                    stroke="white"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='javascript/userpage.js') }}"></script>
+  </body>
+</html>

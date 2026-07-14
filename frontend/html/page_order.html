@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Page</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/order.css') }}"
+    />
+  </head>
+
+  <body>
+    <header class="navbar">
+      <nav class="nav-links">
+        <a href="#profile">Profile</a>
+        <a href="#cart">Cart</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="logo">FOURWINDSTRAVEL.CO</div>
+    </header>
+
+    <main id="profile" class="profile-container">
+      <div class="profile-card">
+        <div class="profile-left">
+          <h1>Hello Welcome!</h1>
+          <div class="profile-actions">
+            <button id="btn-edit-user" class="btn-change">
+              Change Profile
+            </button>
+            <a
+              href="{{ url_for('auth.logout') }}"
+              id="btn-logout"
+              class="btn-change btn-logout"
+              >Logout</a
+            >
+            <button id="btn-cancel-edit" class="btn-change btn-cancel-hide">
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-right">
+          <div class="info-row">
+            <span>Name</span>
+            <span id="display-nama" class="capitalize"
+              >{{ session.user_nama }}</span
+            >
+            <input
+              type="text"
+              id="edit-nama"
+              class="input-edit"
+              value="{{ session.user_nama }}"
+            />
+            <!-- refer to auth.py when define session -->
+
+          </div>
+          <div class="info-row">
+            <span>Email Account</span>
+            <span id="display-email">{{ user_data.email }}</span>
+            <input
+              type="email"
+              id="edit-email"
+              class="input-edit"
+              value="{{ user_data.email }}"
+            />
+          </div>
+          <div class="info-row">
+            <span>Account Created</span>
+            <span>{{ user_data.created_at }}</span>
+          </div>
+          <div class="info-row">
+            <span>Account Updated</span>
+            <span
+              >{{ user_data.updated_at if user_data.updated_at else '-' }}</span
+            >
+            <!-- user_data refer to app.py after render template -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <main id="cart" class="cart-container">
+      <h1 class="cart-title">Your Cart!</h1>
+
+      <div class="cart-content">
+        {% if cart_items %}
+        <div class="cart-items-box">
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th class="col-name">Name</th>
+                <th class="col-price">Price / person</th>
+                <th class="col-total">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in cart_items %}
+              <tr class="cart-item">
+                <td class="item-details">
+                  <div class="action-icons">
+                    <form
+                      action="{{ url_for('wisata.delete_cart_item', detail_id=item.id) }}" 
+                      method="POST"
+                      class="inline-form"
+                    >
+                    <!-- url for >> cari ke wisata.py dan kirim parameternya -->
+                      <button
+                        type="submit"
+                        class="btn-icon-action btn-delete"
+                        onclick="
+                          return confirm('Hapus paket ini dari keranjang?');
+                        "
+                      >
+                        🗑️
+                      </button>
+                    </form>
+
+                    <span
+                      class="btn-icon-action btn-edit-icon"
+                      onclick="editItem('{{ item.id }}', '{{ item.start_date }}', '{{ item.qty }}')"
+                    >
+                      📝
+                    </span>
+                  </div>
+                  <div class="item-info">
+                    <h3 class="item-name">{{ item.nama_wisata }}</h3>
+                    <p>
+                      Date: <span class="item-date">{{ item.start_date }}</span>
+                    </p>
+                    <p>
+                      Qty/person: <span class="item-qty">{{ item.qty }}</span>
+                    </p>
+                  </div>
+                </td>
+                <td class="price">
+                  Rp {{ "{:,.0f}".format(item.harga_paket).replace(',', '.') }}
+                </td>
+                <td class="total-price">
+                  Rp {{ "{:,.0f}".format(item.subtotal).replace(',', '.') }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="summary-box">
+          <h2>Order Summary</h2>
+          <div class="summary-details">
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span
+                >Rp {{ "{:,.0f}".format(total_pembayaran).replace(',', '.')
+                }}</span
+              >
+            </div>
+          </div>
+          <div class="summary-total">
+            <span>Total</span>
+            <span
+              >Rp {{ "{:,.0f}".format(total_pembayaran).replace(',', '.')
+              }}</span
+            >
+          </div>
+          <form action="{{ url_for('wisata.checkout') }}" method="POST">
+            <button
+              type="submit"
+              class="btn-checkout"
+              onclick="return confirm('Proses pembayaran sekarang?');"
+            >
+              Check out
+            </button>
+          </form>
+        </div>
+        {% else %}
+        <div class="empty-cart-message">
+          <p>Your cart is currently empty. Let's find some adventures!</p>
+          <a href="{{ url_for('wisata.explore') }}" class="btn-change"
+            >Explore Now</a
+          >
+        </div>
+        {% endif %}
+      </div>
+    </main>
+
+    <section class="booking-section">
+      <h1 class="booking-title">Your Booking!</h1>
+
+      {% if paid_items %} {% for booking in paid_items %}
+      <div class="booking-card">
+        <div class="image-container">
+          <img
+            src="{{ url_for('custom_public', filename=booking.gambar) }}"
+            alt="Travel Image"
+            class="booking-image"
+          />
+        </div>
+
+        <div class="card-content">
+          <div class="package-info">
+            <h2 class="package-name">{{ booking.nama_wisata }}</h2>
+            <p class="package-price">
+              <strong
+                >Rp {{ "{:,.0f}".format(booking.harga_paket).replace(',', '.')
+                }}</strong
+              >
+              / per pax
+            </p>
+          </div>
+
+          <div class="booking-form">
+            <div class="form-group">
+              <label>Tanggal keberangkatan</label>
+              <input
+                type="text"
+                value="{{ booking.start_date }}"
+                class="input-field"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label>Jumlah Peserta</label>
+              <input
+                type="text"
+                value="{{ booking.qty }}"
+                class="input-field"
+                readonly
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <p class="no-booking">No bookings found in your account.</p>
+      {% endif %}
+    </section>
+
+    <footer id="contact" class="footer-section">
+      <div class="footer-layout">
+        <div class="footer-column-brand">
+          <h3 class="footer-logo">FOURWINDSTRAVEL.CO</h3>
+          <div class="social-bar">
+            <a href="#"
+              ><img
+                src="/media/homepage/footer/twitter.png"
+                alt="Twitter"
+                class="social-icon"
+            /></a>
+            <a href="#"
+              ><img
+                src="/media/homepage/footer/instagram.png"
+                alt="Instagram"
+                class="social-icon"
+            /></a>
+            <a href="#"
+              ><img
+                src="/media/homepage/footer/facebook.png"
+                alt="Facebook"
+                class="social-icon"
+            /></a>
+            <a href="#"
+              ><img
+                src="/media/homepage/footer/whatsapp.png"
+                alt="WhatsApp"
+                class="social-icon"
+            /></a>
+          </div>
+        </div>
+
+        <div class="footer-column-info">
+          <p class="column-title">INFORMATION</p>
+          <ul class="footer-list">
+            <li>About us</li>
+            <li>More search</li>
+            <li>Testimonial</li>
+          </ul>
+        </div>
+
+        <div class="footer-column-contact">
+          <p class="column-title">CONTACT</p>
+          <ul class="footer-list">
+            <li>fourwinds@gmail.com</li>
+            <li>+62 234 234 234</li>
+            <li class="user-icon-row">
+              <a href="/login-admin" class="user-link">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="10" cy="10" r="10" fill="#a38171" />
+                  <path
+                    d="M10 5a3 3 0 100 6 3 3 0 000-6zM4 16c0-3 3-4 6-4s6 1 6 4"
+                    stroke="white"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+
+    <div id="editModal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Edit Your Order</h3>
+          <span class="close-icon" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-detail-id" />
+          <div class="input-group">
+            <label>Travel Date</label>
+            <input type="date" id="edit-date" />
+          </div>
+          <div class="input-group">
+            <label>Number of People</label>
+            <input type="number" id="edit-qty" min="1" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='javascript/orderpage.js') }}"></script>
+  </body>
+</html>

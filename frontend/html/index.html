@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Four Winds Travel - Explore Indonesia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <nav class="navbar">
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#destination">Destination</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="logo">FOURWINDSTRAVEL.CO</div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero-section">
+            <div class="hero-image-container">
+                <img src="/media/homepage/hero.png" alt="Hero Image Indonesia" class="hero-image">
+                <div class="hero-content">
+                    <h1>Explore Indonesia with Us</h1>
+                    <p>Our world is incredibly beautiful, with a rich diversity of landscapes, cultures, and wildlife.
+                        Follow us to enjoy these moments.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="features-intro">
+            <h2>We offers creative and budget-friendly travel solutions that are highly valued by our customers.</h2>
+            <div class="features-grid">
+                <div class="feature-item">Accessible for Travelers with Disabilities</div>
+                <div class="feature-item">Local Expertise & Trusted Partners</div>
+                <div class="feature-item">Hassle-Free Planning</div>
+                <div class="feature-item">Affordable & Transparent Pricing</div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <div class="about-content">
+                <p>With a focus on personalized service, comfort, and reliability, we help travelers explore the true
+                    beauty of the archipelago through well-planned, seamless journeys tailored to every need.</p>
+                <button class="btn-explore" onclick="window.location.href='/login-user';">
+                    Explore
+                </button>
+            </div>
+            <div class="about-image-container">
+                <img src="/media/homepage/about.png" alt="Nature View" class="about-image">
+            </div>
+        </section>
+
+        <section id="destination" class="destination-section">
+            <div class="carousel-container">
+                <button class="nav-button prev" id="moveLeft">&#10094;</button>
+
+                <div class="carousel-track" id="track">
+                    <div class="destination-card">
+                        <img src="/media/homepage/destination/jateng.jpg" alt="jateng" class="card-image">
+                        <div class="card-overlay">
+                            <p class="card-text">Get a getaway in the nature<br><strong>Central Java</strong></p>
+                        </div>
+                    </div>
+                    <div class="destination-card">
+                        <img src="/media/homepage/destination/jatim.jpg" alt="jatim" class="card-image">
+                        <div class="card-overlay">
+                            <p class="card-text">Breathe the majestic Mount Bromo<br><strong>East Java</strong></p>
+                        </div>
+                    </div>
+                    <div class="destination-card">
+                        <img src="/media/homepage/destination/ntb.jpg" alt="ntb" class="card-image">
+                        <div class="card-overlay">
+                            <p class="card-text">Feel the charm of the island<br><strong>Nusa Tenggara Barat</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="destination-card">
+                        <img src="/media/homepage/destination/sulsel.jpg" alt="sulsel" class="card-image">
+                        <div class="card-overlay">
+                            <p class="card-text">Get lost in the culture<br><strong>South Sulawesi</strong></p>
+                        </div>
+                    </div>
+                    <div class="destination-card">
+                        <img src="/media/homepage/destination/danautoba.jpg" alt="danautoba" class="card-image">
+                        <div class="card-overlay">
+                            <p class="card-text">Swim in the land of lakes<br><strong>North Sumatera</strong></p>
+                        </div>
+                    </div>
+                    <div class="destination-card">
+                        <img src="/media/homepage/destination/bali.jpg" alt="bali" class="card-image">
+                        <div class="card-overlay">
+                            <p class="card-text">Visit the island of gods<br><strong>Bali</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="nav-button next" id="moveRight">&#10095;</button>
+            </div>
+
+            <div class="dots-container">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </section>
+
+        <section id="testimonials" class="testimonial-section">
+            <div class="testimonial-header">
+                <h2>Testimonials<br>from our clients</h2>
+            </div>
+
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <img src="/media/homepage/testimoni/Gilchrist Malachy Tendeng.jpg" class="client-avatar">
+                    <p class="quote">“A smooth and enjoyable trip from start to finish. Everything was well-organized,
+                        and the team was always helpful and responsive. Truly a hassle-free travel experience.”</p>
+                    <div class="client-info">
+                        <h4 class="client-name">Gilchrist Malachy Tendeng</h4>
+                        <p class="client-major">Computer and Data Science</p>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <img src="/media/homepage/testimoni/Elizabeth.jpg" class="client-avatar">
+                    <p class="quote">“From the moment we booked until the end of our trip, everything was handled
+                        smoothly and efficiently. The itinerary was perfectly balanced between relaxation and
+                        exploration, and every detail was clearly communicated.”</p>
+                    <div class="client-info">
+                        <h4 class="client-name">Elizabeth</h4>
+                        <p class="client-major">Computer and Data Science</p>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <img src="/media/homepage/testimoni/Yeria Yedija Juwita Sari Bunga.jpg.jpeg" class="client-avatar">
+                    <p class="quote">“The service was excellent, the arrangements were flawless, and the overall
+                        experience felt personalized to our needs. We especially appreciated how flexible and attentive
+                        they were.”</p>
+                    <div class="client-info">
+                        <h4 class="client-name">Yeria Yedija Juwita Sari Bunga</h4>
+                        <p class="client-major">IT & Big Data Analytics</p>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <img src="/media/homepage/testimoni/Serafina Joshlyn Massing.jpg.jpeg" class="client-avatar">
+                    <p class="quote">“Our experience was beyond expectations. Every part of the journey was thoughtfully
+                        arranged, allowing us to focus on enjoying the beauty of each destination without any worries.”
+                    </p>
+                    <div class="client-info">
+                        <h4 class="client-name">Serafina Joshlyn Massing</h4>
+                        <p class="client-major">IT & Big Data Analytics</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="banner-section">
+        <div class="banner-container">
+            <div class="banner-overlay">
+                <h2 class="banner-text">Start your thrilling journey into the most beautiful country in the world
+                    today.</h2>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer-section">
+        <div class="footer-layout">
+
+            <div class="footer-brand">
+                <h3 class="footer-logo">FOURWINDSTRAVEL.CO</h3>
+                <div class="social-bar">
+                    <a href="#"><img src="/media/homepage/footer/twitter.png" alt="Twitter" class="social-icon"></a>
+                    <a href="#"><img src="/media/homepage/footer/instagram.png" alt="Instagram" class="social-icon"></a>
+                    <a href="#"><img src="/media/homepage/footer/facebook.png" alt="Facebook" class="social-icon"></a>
+                    <a href="#"><img src="/media/homepage/footer/whatsapp.png" alt="WhatsApp" class="social-icon"></a>
+                </div>
+            </div>
+
+            <div id="contact" class="footer-info">
+                <p class="footer-title">INFORMATION</p>
+                <ul class="footer-list">
+                    <li><a href="#">About us</a></li>
+                    <li><a href="#">More search</a></li>
+                    <li><a href="#">Testimonial</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <p class="footer-title">CONTACT</p>
+                <ul class="footer-list">
+                    <li>fourwinds@gmail.com</li>
+                    <li>+62 234 234 234</li>
+                    <li class="user-row">
+                        <a href="{{ url_for('auth.login_admin') }}" class="user-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </footer>
+
+
+    <script src="{{ url_for('static', filename='javascript/homepage.js') }}"></script>
+</body>
+
+</html>
